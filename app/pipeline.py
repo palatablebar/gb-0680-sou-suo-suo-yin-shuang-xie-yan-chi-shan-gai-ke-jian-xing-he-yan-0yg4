@@ -21,11 +21,13 @@ def calculate(raw,params=None,stop=6):
         result=stage(raw if index==0 else rows,context)
         result=scalar(result);rows=result["rows"]
         context["quarantine"].extend(result.get("quarantine",[]))
-        if index==0: context["intake"]=result["metrics"]
+        if index==0:
+            context["intake"]=result["metrics"]
+            context["lineage_ledger"]=result["metrics"].get("event_ledger",[])
         result["cumulative_quarantine"]=list(context["quarantine"])
         context[MODULES[index][0]]=result
         stages.append(result)
-    return {"run_id":digest(raw,params)[:20],"stages":stages,"manifest":manifest(raw,params,started),"parameters":params}
+    return {"run_id":digest(raw,params)[:20],"stages":stages,"manifest":manifest(raw,params,started),"parameters":params,"lineage_ledger":context.get("lineage_ledger",[])}
 def execute(raw,params=None):
     result=calculate(raw,params);return store.save(result["run_id"],result)
 def stage_preview(index,payload):

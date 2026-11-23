@@ -1,0 +1,21 @@
+{% macro lineage_panel(run) %}
+<section class="panel">
+  <div class="panel__head"><h2>事件血缘账</h2><span>按 (事件号·数据端) 挂账 · 逐到达留痕</span></div>
+  <div class="table-scroll">
+    <table class="version-ledger lineage-ledger">
+      <thead><tr><th>事件号</th><th>数据端</th><th>裁决</th><th>到达次数</th><th>物理行 / 每次到达时刻</th></tr></thead>
+      <tbody>
+        {% for e in run.lineage_ledger %}
+        <tr class="{{'qrow-conflict' if e.state=='conflict' else ('retry' if e.state=='retry_merged' else '')}}">
+          <td>{{e.event_id}}</td>
+          <td>{{e.side}}</td>
+          <td>{{ {'single':'单次到达','retry_merged':'重试合并·不新增结论','conflict':'冲突隔离·禁止对平'}[e.state] }}</td>
+          <td>{{e.arrival_count}}</td>
+          <td>{% for a in e.arrivals %}<span class="arrival">行{{a.source_line}} · 源 {{a.source_time}}{% if a.visible_time and a.visible_time != '-' %} / 见 {{a.visible_time}}{% endif %}</span>{% endfor %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endmacro %}

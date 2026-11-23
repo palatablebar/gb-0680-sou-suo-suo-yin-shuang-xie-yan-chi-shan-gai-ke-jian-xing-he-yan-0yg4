@@ -5,6 +5,10 @@ def test_full_sample_flow(client):
     r=client.post("/api/runs",json={"sample":"dirty.csv"});assert r.status_code==200
     p=r.get_json();assert len(p["stages"])==7
     assert p["stages"][5]["metrics"]["balanced"] is True
+    # 血缘账按(事件号,数据端)挂账，覆盖重试合并与冲突隔离两类裁决
+    states={e["state"] for e in p["lineage_ledger"]}
+    assert {"retry_merged","conflict"}<=states
+    assert all({"event_id","side","state","arrivals"}<=set(e) for e in p["lineage_ledger"])
 def test_idempotent_real_input(sample):
     a=execute(sample);b=execute(sample)
     assert a["run_id"]==b["run_id"] and len(store.history())==1

@@ -1,3 +1,5 @@
 # 接口
 
 模块GET使用仓内样例，模块POST可传csv或rows与context，直接计算当前规则。/api/runs使用完整流水线并原子保存。每个阶段返回rows、quarantine、metrics；后续阶段还返回累计隔离。/api/upload接收multipart文件file。/api/runs/<id>/archive只导出一份带清单与证据的CSV。
+
+完整run在根字段返回lineage_ledger事件血缘账：按(event_id,side)每身份一条，state取single/retry_merged/conflict，arrivals逐到达记录source_line/source_record/source_time/visible_time/note。m1指标额外含retry_events、event_conflict_events、accepted_records、rejected_records、non_event_lines、lineage_balanced；m6指标含retry_duplicate_arrivals与physical_source_lines。证据CSV的kind取值为accepted、quarantine或lineage:<state>，三类共用同一run_id与输入摘要。
